@@ -1,3 +1,4 @@
+https://veridianit-arcg7xcj.manus.space/
 # Veridian Service Operations
 
 A full-stack internal IT service operations workspace for Veridian Corp. The application combines deterministic request triage, grounded policy knowledge, persistent ticket management, human approvals, and an append-only audit trail in one responsive operations dashboard.
