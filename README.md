@@ -16,6 +16,12 @@ A full-stack internal IT service operations workspace for Veridian Corp. The app
 
 The agent is intentionally conservative: it does not grant access, invent policy, bypass approval, or allow an optional LLM to override the deterministic policy engine.
 
+## Assignment 2 data-pack alignment
+
+The seeded workspace mirrors the supplied Assignment 2 data pack: all 15 employee requests, the 10 ticket records `TK-1042` through `TK-1051`, the 10 knowledge-base articles, and the Asset Management Policy extract. The policy engine implements the handout's explicit thresholds and controls, including the 90-day VPN renewal cycle, contractor manager approval, three-year laptop eligibility, four-year asset refresh and Finance sign-off, 3–5 business-day Security review, printer queue/spooler troubleshooting, 25GB/50GB mailbox limits, 24-hour guest Wi-Fi credentials, the Security reporting address, and manager/Finance approval for WFH equipment.
+
+Database bootstrap is idempotent and reconciles the known baseline records on startup while preserving user-created requests and tickets. This keeps an already-published demo aligned with the source pack without deleting operational history.
+
 ## Technology
 
 - React 19 + TypeScript

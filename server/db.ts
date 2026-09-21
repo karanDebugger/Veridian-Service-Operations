@@ -50,12 +50,26 @@ export async function getUserByOpenId(openId: string) {
 export async function seedBaseData() {
   const db = await getDb();
   if (!db) return;
-  const existing = await db.select({ id: serviceRequests.id }).from(serviceRequests).limit(1);
-  if (existing.length) return;
-  await db.insert(serviceRequests).values(requestSeed.map(([requestId, employeeName, employeeEmail, requestDate, requestText, initialAction]) => ({ requestId, employeeName, employeeEmail, requestDate, requestText, initialAction })));
-  await db.insert(kbArticles).values(kbSeed.map(([articleId, title, content, category]) => ({ articleId, title, content, category })));
-  await db.insert(tickets).values(legacyTicketSeed.map(([ticketNumber, requestId, category, summary, priority, status, assignee, action, sourceRefs]) => ({ ticketNumber, requestId, category, summary, priority, status, assignee, action, sourceRefs })));
-  await db.insert(auditEvents).values({ eventType: "SYSTEM_READY", entityType: "system", entityId: "veridian-it-support", actor: "system", detail: "Seeded the Veridian service catalog and operational workspace." });
+  for (const [requestId, employeeName, employeeEmail, requestDate, requestText, initialAction] of requestSeed) {
+    const existing = (await db.select({ id: serviceRequests.id }).from(serviceRequests).where(eq(serviceRequests.requestId, requestId)).limit(1))[0];
+    const values = { employeeName, employeeEmail, requestDate, requestText, initialAction };
+    if (existing) await db.update(serviceRequests).set(values).where(eq(serviceRequests.requestId, requestId));
+    else await db.insert(serviceRequests).values({ requestId, ...values });
+  }
+  for (const [articleId, title, content, category] of kbSeed) {
+    const existing = (await db.select({ id: kbArticles.id }).from(kbArticles).where(eq(kbArticles.articleId, articleId)).limit(1))[0];
+    const values = { title, content, category };
+    if (existing) await db.update(kbArticles).set(values).where(eq(kbArticles.articleId, articleId));
+    else await db.insert(kbArticles).values({ articleId, ...values });
+  }
+  for (const [ticketNumber, requestId, category, summary, priority, status, assignee, action, sourceRefs] of legacyTicketSeed) {
+    const existing = (await db.select({ id: tickets.id }).from(tickets).where(eq(tickets.ticketNumber, ticketNumber)).limit(1))[0];
+    const values = { requestId, category, summary, priority, status, assignee, action, sourceRefs };
+    if (existing) await db.update(tickets).set(values).where(eq(tickets.ticketNumber, ticketNumber));
+    else await db.insert(tickets).values({ ticketNumber, ...values });
+  }
+  const audit = await db.select({ id: auditEvents.id }).from(auditEvents).where(eq(auditEvents.entityId, "veridian-it-support")).limit(1);
+  if (!audit.length) await db.insert(auditEvents).values({ eventType: "SYSTEM_READY", entityType: "system", entityId: "veridian-it-support", actor: "system", detail: "Seeded and reconciled the Veridian service catalog and operational workspace from the Assignment 2 data pack." });
 }
 
 export async function getBootstrap() {
